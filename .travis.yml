@@ -1,0 +1,7 @@
+language: python
+python:
+  - "2.7"
+# Dependencies
+install: "pip install beautifulsoup4"
+# Command to run the tests.
+script: python -m unittest tests.test_eztvit
