@@ -4,7 +4,7 @@ import eztvit
 
 class TestEztvItRealTime(unittest.TestCase):
     def setUp(self):
-        print "Running tests run against EZTVs live servers..."
+        print "Running tests that connect to EZTVs live servers..."
 
     def test_suits(self):
         suits = eztvit.EztvIt().get_episodes('Suits')
