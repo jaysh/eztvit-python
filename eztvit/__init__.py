@@ -6,6 +6,8 @@ Works by screen-scraping the homepage and show pages, but depending as little
 on the names of elements or structure of the DOM as possible.
 """
 
+__version__ = "2.0"
+
 import bs4
 import re
 import collections
