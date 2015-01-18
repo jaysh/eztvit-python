@@ -5,9 +5,13 @@ eztv.it Python Connector
 
 A Simple API that allows anyone to retrieve the list of shows that EZTV has, and print information about episodes and seasons a particular season has to offer.
 
-# Installation
+# Installation from PyPi
 
     sudo pip install eztvit
+
+# Building the project
+
+    python setup.py sdist
 
 # Usage 
 
