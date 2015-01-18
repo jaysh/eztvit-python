@@ -41,11 +41,11 @@ class EztvIt(object):
         This simulates selecting a show from the homepage dropdown, and click
         on the "Search" button.
         """
-        data = [('SearchString1', ''),    # We don't "type" search queryself.
+        data = [('SearchString1', ''),    # We don't "type" search query itself.
                ('SearchString', show_id), # We do supply a show list.
                ('Search', 'Search')]      # Search button.
         request = urllib2.Request(
-            url=SCHEME + '://eztv.it/search/',
+            url=SCHEME + '://eztv.ch/search/',
             headers=HEADERS,
             data=urllib.urlencode(data),
         )
@@ -54,7 +54,7 @@ class EztvIt(object):
 
     def _get_homepage_html(self):
         """Fetch the homepage."""
-        request = urllib2.Request(url=SCHEME + '://eztv.it/', headers=HEADERS)
+        request = urllib2.Request(url=SCHEME + '://eztv.ch/', headers=HEADERS)
 
         return urllib2.urlopen(request).read()
 
