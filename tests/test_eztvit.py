@@ -22,7 +22,7 @@ class TestEztvIt(unittest.TestCase):
         # Check that we requested the homepage.
         request = self._get_request_from_mock(mock_urlopen)
         self.assertIn('WebKit', request.get_header('User-agent'))
-        self.assertEquals(request.get_full_url(), 'https://eztv.it/')
+        self.assertEquals(request.get_full_url(), 'https://eztv.ch/')
         self.assertEquals(request.get_method(), 'GET')
 
         # Check that we didn't make any other HTTP requests. We subtract one
@@ -78,7 +78,7 @@ class TestEztvIt(unittest.TestCase):
         # Check that we made an appropriate HTTP request to get this page.
         request = self._get_request_from_mock(mock_urlopen)
         self.assertIn('WebKit', request.get_header('User-agent'))
-        self.assertEquals(request.get_full_url(), 'https://eztv.it/search/')
+        self.assertEquals(request.get_full_url(), 'https://eztv.ch/search/')
         self.assertEquals(request.get_method(), 'POST')
         self.assertEquals(request.get_data(),
                           "SearchString1=&SearchString=495&Search=Search")
