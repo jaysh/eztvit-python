@@ -13,7 +13,6 @@ class TestEztvItRealTime(unittest.TestCase):
         self.assertEquals(len(suits[1]), 12 - 1 - 1) # Epi. 6, 10 are missing.
         self.assertEquals(len(suits[2]), 16)
         self.assertEquals(len(suits[3]), 16)
-        self.assertLessEqual(len(suits[4]), 10)
 
         # Test that "S04E06" has 2 episodes, in a particular order, with the
         # correct magnet links.
