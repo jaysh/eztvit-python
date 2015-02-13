@@ -216,7 +216,9 @@ class EztvIt(object):
                     season = int(release_match.group(1))
                     episode = int(release_match.group(2))
 
-            assert season and episode, "Find the season/episode numbers"
+            assert season is not None, "Find the season number"
+            assert episode is not None, "Find the episode number"
+
             shows[season][episode].append({
                 'release': anchor.text,
                 'download': links,
