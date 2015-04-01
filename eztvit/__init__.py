@@ -130,12 +130,6 @@ class EztvIt(object):
             raise RuntimeError("Unable to locate the table that contains the "
                                "list of releases")
 
-        shows_table = tv_releases_title.find_parent('table')
-        if not shows_table:
-            raise RuntimeError("The structure of the website has changed: "
-                               "the title we found is not longer within the "
-                               "table that contains the list of releases.")
-
         # Different release authors choose different formats, so we try to
         # cater for them all.
         episode_codes = [
@@ -160,12 +154,12 @@ class EztvIt(object):
         # page, provided the end result is still a <table> (which it should
         # be, since this is tabular data, after all) and we'll stil have no
         # real issues matching episode information.
-        release_anchors = shows_table.find_all('a', text=episode_code_regex)
+        release_anchors = parsed.find_all('a', text=episode_code_regex)
 
         for anchor in release_anchors:
             # The anchor itself will be contained by a <tr> (i.e. the whole
-            # row of the table). Find this parent of ours ensures we're look
-            # at precisely one episode at a time.
+            # row of the table). This ensures we're look at precisely one
+            # episode (row) at a time.
             row = anchor.find_parent('tr')
             if not row:
                 raise RuntimeError("The episode anchor was not contained "

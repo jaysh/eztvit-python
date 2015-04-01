@@ -94,7 +94,7 @@ class TestEztvIt(unittest.TestCase):
         with open('tests/fixtures/fringe.html') as fixture:
             mock_urlopen().read.return_value = fixture.read()
 
-        # Fetch the dictionary that represents all of the episodes of "Suits".
+        # Fetch the dictionary that represents all of the episodes of "Fringe".
         fringe = eztvit.EztvIt().get_episodes_by_id(101)
 
         # Ensure we're dealing with exactly dictionaries, not defaultdicts or
@@ -112,11 +112,11 @@ class TestEztvIt(unittest.TestCase):
 
     @mock.patch('urllib2.urlopen')
     def test_shows_list(self, mock_urlopen):
-        # Mock urllib2 to return the episodes of the awesome TV show "Suits".
+        # Mock urllib2 to return the homepage.
         with open('tests/fixtures/homepage.html') as fixture:
             mock_urlopen().read.return_value = fixture.read()
 
-        # Fetch the dictionary that represents all of the episodes of suits.
+        # Fetch the dictionary that represents all of available shows.
         shows = eztvit.EztvIt().get_shows()
 
         self.assertEquals(shows[495], 'Suits')
