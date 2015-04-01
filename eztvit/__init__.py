@@ -194,14 +194,15 @@ class EztvIt(object):
                 links['torrent'] = urlparse.urlparse(href, SCHEME).geturl()
 
             # Find the anchor that looks like it has a title for the filesize.
-            filesize_regex = re.compile(r'([\d\.]+) (MB|GB)')
+            filesize_regex = re.compile(r'([\d\.]+) (MB|GB|B)')
             filesize_anchor = row.find(title=filesize_regex)
+
             # Get the size and the units
             filesize_match = filesize_regex.search(filesize_anchor.get('title'))
             assert filesize_match, "Extract the filesize from the title"
 
             # Parse the human MB/GB into a universal megabytes format.
-            factors = {'GB': 1024, 'MB': 1}
+            factors = {'GB': 1024, 'MB': 1, 'B': 0}
             filesize_units = filesize_match.group(2)
             assert filesize_units in factors
             # Convert it to a reasonably-readable megabyte-size.
