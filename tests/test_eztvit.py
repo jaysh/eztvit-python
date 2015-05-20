@@ -49,7 +49,7 @@ class TestEztvIt(unittest.TestCase):
         self.assertEquals(len(suits[1]), 12 - 1 - 1) # Epi. 6, 10 are missing.
         self.assertEquals(len(suits[2]), 16)
         self.assertEquals(len(suits[3]), 16)
-        self.assertLessEqual(len(suits[4]), 10)
+        self.assertLessEqual(len(suits[4]), 16)
 
         # Test that "S04E06" has 2 episodes, in a particular order, with the
         # correct magnet links.
@@ -71,17 +71,15 @@ class TestEztvIt(unittest.TestCase):
         self.assertEquals(len(suits_1x11), 1)
 
         self.assertEquals(suits_1x11[0]['release'],
-                          "Suits 1x11 (HDTV-LOL) [VTV]")
+                          u"Suits 1x11 (HDTV-LOL)")
         self.assertIn('magnet:?xt=urn:btih:6AD3E1D56CBA16',
                       suits_1x11[0]['download']['magnet'])
 
         # Check that we made an appropriate HTTP request to get this page.
         request = self._get_request_from_mock(mock_urlopen)
         self.assertIn('WebKit', request.get_header('User-agent'))
-        self.assertEquals(request.get_full_url(), 'https://eztv.ch/search/')
-        self.assertEquals(request.get_method(), 'POST')
-        self.assertEquals(request.get_data(),
-                          "SearchString1=&SearchString=495&Search=Search")
+        self.assertEquals(request.get_full_url(), 'https://eztv.ch/shows/495/')
+        self.assertEquals(request.get_method(), 'GET')
 
         # Check that we didn't make any other HTTP requests. We subtract one
         # because invoking the mock in order to assign the "read" return value

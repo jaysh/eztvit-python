@@ -1,4 +1,3 @@
-import mock
 import unittest
 import eztvit
 
@@ -34,6 +33,6 @@ class TestEztvItRealTime(unittest.TestCase):
         self.assertEquals(len(suits_1x11), 1)
 
         self.assertEquals(suits_1x11[0]['release'],
-                          "Suits 1x11 (HDTV-LOL) [VTV]")
+                          u"Suits 1x11 (HDTV-LOL)")
         self.assertIn('magnet:?xt=urn:btih:6AD3E1D56CBA16',
                       suits_1x11[0]['download']['magnet'])
