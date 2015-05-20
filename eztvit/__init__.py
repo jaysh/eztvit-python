@@ -41,13 +41,9 @@ class EztvIt(object):
         This simulates selecting a show from the homepage dropdown, and click
         on the "Search" button.
         """
-        data = [('SearchString1', ''),    # We don't "type" search query itself.
-               ('SearchString', show_id), # We do supply a show list.
-               ('Search', 'Search')]      # Search button.
         request = urllib2.Request(
-            url=SCHEME + '://eztv.ch/search/',
-            headers=HEADERS,
-            data=urllib.urlencode(data),
+            url=SCHEME + '://eztv.ch/shows/{show_id}/'.format(show_id= show_id),
+            headers=HEADERS
         )
 
         return urllib2.urlopen(request).read()
@@ -125,7 +121,7 @@ class EztvIt(object):
         # First, we need to locate the table that contains the "Television
         # Show Releases".
         tv_releases_title = parsed.find(
-            text=lambda t: t.strip() == 'Television Show Releases')
+            text=lambda t:  'Show Releases for' in t)
         if not tv_releases_title:
             raise RuntimeError("Unable to locate the table that contains the "
                                "list of releases")
