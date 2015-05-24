@@ -174,14 +174,14 @@ class EztvIt(object):
             # ".torrent". Note, this isn't foolproof - i.e.
             # "http://www.google.com/?.torrent" would trick this into
             # matching.
-            torrent_link = row.find(href=re.compile(r'\.torrent$'))
-            if torrent_link:
+            torrent_links = row.find_all(href=re.compile(r'\.torrent$'))
+            if torrent_links:
                 # Scheme-relative links are pretty useless in the output, so
                 # we substitute any missing schemes for the way we accessed
                 # this page in the first place (e.g. if we accessed it over
                 # https, we use https as the default).
-                href = torrent_link.get('href')
-                links['torrent'] = urlparse.urlparse(href, SCHEME).geturl()
+                hrefs = (torrent_link.get('href') for torrent_link in torrent_links)
+                links['torrents'] = [urlparse.urlparse(href, SCHEME).geturl() for href in hrefs]
 
             # Find the anchor that looks like it has a title for the filesize.
             filesize_regex = re.compile(r'([\d\.]+) (MB|GB|B)')
@@ -218,6 +218,6 @@ class EztvIt(object):
 
         # Return a dict, not a defaultdict.
         return dict(
-            dict((season, dict(episodes))
-            for (season, episodes) in shows.iteritems())
+            dict((season, dict(episodes)) for
+                 (season, episodes) in shows.iteritems())
         )
