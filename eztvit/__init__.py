@@ -6,7 +6,7 @@ Works by screen-scraping the homepage and show pages, but depending as little
 on the names of elements or structure of the DOM as possible.
 """
 
-__version__ = "3.0.0"
+__version__ = "3.0.1"
 
 import bs4
 import re
@@ -22,6 +22,7 @@ HEADERS = {
                   'Ubuntu Chromium/30.0.1599.114 '
                   'Chrome/30.0.1599.114 Safari/537.36'
 }
+EZTV_DOMAIN = 'eztv.ag'
 
 class EztvIt(object):
     """EZTV.it Client
@@ -42,7 +43,7 @@ class EztvIt(object):
         on the "Search" button.
         """
         request = urllib2.Request(
-            url=SCHEME + '://eztv.ch/shows/{show_id}/'.format(show_id= show_id),
+            url=SCHEME + '://' + EZTV_DOMAIN + '/shows/{show_id}/'.format(show_id= show_id),
             headers=HEADERS
         )
 
@@ -50,7 +51,7 @@ class EztvIt(object):
 
     def _get_homepage_html(self):
         """Fetch the homepage."""
-        request = urllib2.Request(url=SCHEME + '://eztv.ch/', headers=HEADERS)
+        request = urllib2.Request(url=SCHEME + '://' + EZTV_DOMAIN + '/', headers=HEADERS)
 
         return urllib2.urlopen(request).read()
 
@@ -121,7 +122,7 @@ class EztvIt(object):
         # First, we need to locate the table that contains the "Television
         # Show Releases".
         tv_releases_title = parsed.find(
-            text=lambda t:  'Show Releases for' in t)
+            text=lambda t: t.strip().endswith('- Torrents Download'))
         if not tv_releases_title:
             raise RuntimeError("Unable to locate the table that contains the "
                                "list of releases")
