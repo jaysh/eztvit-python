@@ -6,7 +6,7 @@ Works by screen-scraping the homepage and show pages, but depending as little
 on the names of elements or structure of the DOM as possible.
 """
 
-__version__ = "3.0.1"
+__version__ = "3.0.2"
 
 import bs4
 import re
@@ -121,8 +121,7 @@ class EztvIt(object):
 
         # First, we need to locate the table that contains the "Television
         # Show Releases".
-        tv_releases_title = parsed.find(
-            text=lambda t: t.strip().endswith('- Torrents Download'))
+        tv_releases_title = parsed.find(text=lambda t: t.strip().endswith('Torrent Download'))
         if not tv_releases_title:
             raise RuntimeError("Unable to locate the table that contains the "
                                "list of releases")
