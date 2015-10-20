@@ -6,14 +6,17 @@ Works by screen-scraping the homepage and show pages, but depending as little
 on the names of elements or structure of the DOM as possible.
 """
 
-__version__ = "3.0.2"
+__version__ = "3.1.0"
 
 import bs4
 import re
 import collections
 import urlparse
-import urllib
-import urllib2
+import urllib3
+import hashlib
+import urllib3.contrib.pyopenssl
+
+urllib3.contrib.pyopenssl.inject_into_urllib3()
 
 SCHEME = 'https'
 HEADERS = {
@@ -36,24 +39,27 @@ class EztvIt(object):
     def __init__(self):
         self.shows_list = None
 
+        self.http = urllib3.PoolManager()
+        self.http.headers['User-Agent'] = HEADERS['User-Agent']
+
     def _get_episodes_page_html(self, show_id):
         """Fetch the shows page.
 
         This simulates selecting a show from the homepage dropdown, and click
         on the "Search" button.
         """
-        request = urllib2.Request(
-            url=SCHEME + '://' + EZTV_DOMAIN + '/shows/{show_id}/'.format(show_id= show_id),
-            headers=HEADERS
+        response = self.http.request(
+            'GET',
+            SCHEME + '://' + EZTV_DOMAIN + '/shows/{show_id}/'.format(show_id= show_id)
         )
 
-        return urllib2.urlopen(request).read()
+        return response.data
 
     def _get_homepage_html(self):
         """Fetch the homepage."""
-        request = urllib2.Request(url=SCHEME + '://' + EZTV_DOMAIN + '/', headers=HEADERS)
+        response = self.http.request('GET', SCHEME + '://' + EZTV_DOMAIN + '/')
 
-        return urllib2.urlopen(request).read()
+        return response.data
 
     def get_shows(self):
         """Get the list of shows on offer.
