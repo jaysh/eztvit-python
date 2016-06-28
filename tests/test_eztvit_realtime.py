@@ -9,7 +9,7 @@ class TestEztvItRealTime(unittest.TestCase):
         suits = eztvit.EztvIt().get_episodes('Suits')
 
         # Check the four seasons have the correct number of episodes.
-        self.assertEquals(len(suits[1]), 12 - 1 - 1) # Epi. 6, 10 are missing.
+        self.assertEquals(len(suits[1]), 1)
         self.assertEquals(len(suits[2]), 16)
         self.assertEquals(len(suits[3]), 16)
 
@@ -19,20 +19,11 @@ class TestEztvItRealTime(unittest.TestCase):
         self.assertEquals(len(suits_4x06), 2)
 
         self.assertEquals(suits_4x06[0]['release'],
-                          "Suits S04E06 REPACK HDTV x264-KILLERS")
+                          "Suits S04E06 REPACK HDTV x264-KILLERS [eztv]")
         self.assertIn('magnet:?xt=urn:btih:D4JVVOTZ3YNAYO',
                       suits_4x06[0]['download']['magnet'])
 
         self.assertEquals(suits_4x06[1]['release'],
-                          "Suits S04E06 HDTV x264-KILLERS")
+                          "Suits S04E06 HDTV x264-KILLERS [eztv]")
         self.assertIn('magnet:?xt=urn:btih:VNL5SUXHIMCODE',
                       suits_4x06[1]['download']['magnet'])
-
-        # Test that "1x11" has 1 episode.
-        suits_1x11 = suits[1][11]
-        self.assertEquals(len(suits_1x11), 1)
-
-        self.assertEquals(suits_1x11[0]['release'],
-                          u"Suits 1x11 (HDTV-LOL)")
-        self.assertIn('magnet:?xt=urn:btih:6AD3E1D56CBA16',
-                      suits_1x11[0]['download']['magnet'])

@@ -1,17 +1,20 @@
 import mock
 import unittest
 import eztvit
+import urllib3
 
 class TestEztvIt(unittest.TestCase):
-    def _get_request_from_mock(self, mock_urlopen, call_number=1):
-        (request, ) = mock_urlopen.call_args_list[call_number][0]
+    def _get_request_from_mock(self, mock_poolmanager, call_number=0):
+        return mock_poolmanager().request.call_args_list[call_number][0]
 
-        return request
+    def _get_headers_from_mock(self, mock_poolmanager, call_number=0):
+        # Google a better way to do this when I get a chance.
+        return dict([mock_poolmanager().headers.__setitem__.call_args_list[call_number][0]])
 
-    @mock.patch('urllib2.urlopen')
-    def test_suits_via_show_name(self, mock_urlopen):
+    @mock.patch('urllib3.PoolManager')
+    def test_suits_via_show_name(self, mock_poolmanager):
         with open('tests/fixtures/homepage.html') as fixture:
-            mock_urlopen().read.return_value = fixture.read()
+            mock_poolmanager().request.return_value = urllib3.response.HTTPResponse(fixture.read())
 
         eztv_client = eztvit.EztvIt()
         eztv_client.get_episodes_by_id = mock.MagicMock()
@@ -20,21 +23,22 @@ class TestEztvIt(unittest.TestCase):
         eztv_client.get_episodes_by_id.assert_called_with(495)
 
         # Check that we requested the homepage.
-        request = self._get_request_from_mock(mock_urlopen)
-        self.assertIn('WebKit', request.get_header('User-agent'))
-        self.assertEquals(request.get_full_url(), 'https://eztv.ag/')
-        self.assertEquals(request.get_method(), 'GET')
+        (method, url) = self._get_request_from_mock(mock_poolmanager)
+        self.assertEquals(url, 'https://eztv.yt/')
+        self.assertEquals(method, 'GET')
 
-        # Check that we didn't make any other HTTP requests. We subtract one
-        # because invoking the mock in order to assign the "read" return value
-        # causes the call-count to increase by one.
-        self.assertEquals(mock_urlopen.call_count - 1, 1)
+        headers = self._get_headers_from_mock(mock_poolmanager)
+        self.assertEquals(len(headers), 1)
+        self.assertIn('WebKit', headers['User-Agent'])
 
-    @mock.patch('urllib2.urlopen')
-    def test_suits_via_show_id(self, mock_urlopen):
+        # Check that we didn't make any other HTTP requests.
+        self.assertEquals(mock_poolmanager().request.call_count, 1)
+
+    @mock.patch('urllib3.PoolManager')
+    def test_suits_via_show_id(self, mock_poolmanager):
         # Mock urllib2 to return the episodes of the awesome TV show "Suits".
         with open('tests/fixtures/suits.html') as fixture:
-            mock_urlopen().read.return_value = fixture.read()
+            mock_poolmanager().request.return_value = urllib3.response.HTTPResponse(fixture.read())
 
         # Fetch the dictionary that represents all of the episodes of "Suits".
         suits = eztvit.EztvIt().get_episodes_by_id(495)
@@ -46,7 +50,7 @@ class TestEztvIt(unittest.TestCase):
             self.assertEquals(type(episodes), dict)
 
         # Check the four seasons have the correct number of episodes.
-        self.assertEquals(len(suits[1]), 12 - 1 - 1) # Epi. 6, 10 are missing.
+        self.assertEquals(len(suits[1]), 1) # Most episodes are missing.
         self.assertEquals(len(suits[2]), 16)
         self.assertEquals(len(suits[3]), 16)
         self.assertLessEqual(len(suits[4]), 16)
@@ -57,40 +61,32 @@ class TestEztvIt(unittest.TestCase):
         self.assertEquals(len(suits_4x06), 2)
 
         self.assertEquals(suits_4x06[0]['release'],
-                          "Suits S04E06 REPACK HDTV x264-KILLERS")
+                          "Suits S04E06 REPACK HDTV x264-KILLERS [eztv]")
         self.assertIn('magnet:?xt=urn:btih:D4JVVOTZ3YNAYO',
                       suits_4x06[0]['download']['magnet'])
 
         self.assertEquals(suits_4x06[1]['release'],
-                          "Suits S04E06 HDTV x264-KILLERS")
+                          "Suits S04E06 HDTV x264-KILLERS [eztv]")
         self.assertIn('magnet:?xt=urn:btih:VNL5SUXHIMCODE',
                       suits_4x06[1]['download']['magnet'])
 
-        # Test that "1x11" has 1 episode.
-        suits_1x11 = suits[1][11]
-        self.assertEquals(len(suits_1x11), 1)
-
-        self.assertEquals(suits_1x11[0]['release'],
-                          u"Suits 1x11 (HDTV-LOL)")
-        self.assertIn('magnet:?xt=urn:btih:6AD3E1D56CBA16',
-                      suits_1x11[0]['download']['magnet'])
-
         # Check that we made an appropriate HTTP request to get this page.
-        request = self._get_request_from_mock(mock_urlopen)
-        self.assertIn('WebKit', request.get_header('User-agent'))
-        self.assertEquals(request.get_full_url(), 'https://eztv.ag/shows/495/')
-        self.assertEquals(request.get_method(), 'GET')
+        (method, url) = self._get_request_from_mock(mock_poolmanager)
+        self.assertEquals(url, 'https://eztv.yt/shows/495/')
+        self.assertEquals(method, 'GET')
 
-        # Check that we didn't make any other HTTP requests. We subtract one
-        # because invoking the mock in order to assign the "read" return value
-        # causes the call-count to increase by one.
-        self.assertEquals(mock_urlopen.call_count - 1, 1)
+        headers = self._get_headers_from_mock(mock_poolmanager)
+        self.assertEquals(len(headers), 1)
+        self.assertIn('WebKit', headers['User-Agent'])
 
-    @mock.patch('urllib2.urlopen')
-    def test_fringe_via_show_id(self, mock_urlopen):
+        # Check that we didn't make any other HTTP requests.
+        self.assertEquals(mock_poolmanager().request.call_count, 1)
+
+    @mock.patch('urllib3.PoolManager')
+    def test_fringe_via_show_id(self, mock_poolmanager):
         # Mock urllib2 to return the episodes of the awesome TV show "Fringe".
         with open('tests/fixtures/fringe.html') as fixture:
-            mock_urlopen().read.return_value = fixture.read()
+            mock_poolmanager().request.return_value = urllib3.response.HTTPResponse(fixture.read())
 
         # Fetch the dictionary that represents all of the episodes of "Fringe".
         fringe = eztvit.EztvIt().get_episodes_by_id(101)
@@ -101,23 +97,21 @@ class TestEztvIt(unittest.TestCase):
         for episodes in fringe.values():
             self.assertEquals(type(episodes), dict)
 
-        # Check the four seasons have the correct number of episodes.
-        self.assertEquals(len(fringe[1]), 20)
-        self.assertEquals(len(fringe[2]), 23 - 1 - 1) # Epi. 11, 12 are missing.
-        self.assertEquals(len(fringe[3]), 22 - 1) # Epi. 20 is missing.
+        # Check the four seasons have the correct number of episodes (season 1 and 2 are missing).
+        self.assertEquals(len(fringe[3]), 15)
         self.assertEquals(len(fringe[4]), 22)
         self.assertEquals(len(fringe[5]), 13)
 
-    @mock.patch('urllib2.urlopen')
-    def test_shows_list(self, mock_urlopen):
+    @mock.patch('urllib3.PoolManager')
+    def test_shows_list(self, mock_poolmanager):
         # Mock urllib2 to return the homepage.
         with open('tests/fixtures/homepage.html') as fixture:
-            mock_urlopen().read.return_value = fixture.read()
+            mock_poolmanager().request.return_value = urllib3.response.HTTPResponse(fixture.read())
 
         # Fetch the dictionary that represents all of available shows.
         shows = eztvit.EztvIt().get_shows()
 
-        self.assertEquals(shows[495], 'Suits')
-        self.assertEquals(shows[101], 'Fringe')
+        self.assertEquals(shows[495], 'Suits (2011)')
+        self.assertEquals(shows[101], 'Fringe (2008)')
         # Check the "The" has come back to the beginning.
-        self.assertEquals(shows[23], 'The Big Bang Theory')
+        self.assertEquals(shows[23], 'The Big Bang Theory (2007)')

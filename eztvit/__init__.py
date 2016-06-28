@@ -25,10 +25,10 @@ HEADERS = {
                   'Ubuntu Chromium/30.0.1599.114 '
                   'Chrome/30.0.1599.114 Safari/537.36'
 }
-EZTV_DOMAIN = 'eztv.ag'
+EZTV_DOMAIN = 'eztv.yt'
 
 class EztvIt(object):
-    """EZTV.it Client
+    """EZTV Client
 
     Example usage:
 
@@ -50,7 +50,7 @@ class EztvIt(object):
         """
         response = self.http.request(
             'GET',
-            SCHEME + '://' + EZTV_DOMAIN + '/shows/{show_id}/'.format(show_id= show_id)
+            SCHEME + '://' + EZTV_DOMAIN + '/shows/{show_id}/'.format(show_id=show_id)
         )
 
         return response.data
@@ -75,10 +75,11 @@ class EztvIt(object):
         if self.shows_list is not None:
             return self.shows_list
 
-        parsed = bs4.BeautifulSoup(self._get_homepage_html())
-        shows_select = parsed.find('select', attrs={'name': 'SearchString'})
+        parsed = bs4.BeautifulSoup(self._get_homepage_html(), "lxml")
+
+        shows_select = parsed.find('select', attrs={'name': 'q2'})
         if not shows_select:
-            raise RuntimeError("Cannot find dropdown called SearchString"
+            raise RuntimeError("Cannot find dropdown called q2"
                                " with the shows in on the homepage.")
 
         # The shows that we have parsed.
@@ -94,11 +95,13 @@ class EztvIt(object):
                 continue
 
             # EZTV have a neat trick where they place the "The " of a show at
-            # the end of the string. So "The Big Bang Theory" will become "Big
-            # Bang Theory, The". We put it at the beginning in order to
-            # normalize it to make it more intuitive to lookup against.
-            if original_name[-5:] == ", The":
-                normalized_name = "The " + original_name[0:-5]
+            # the end of the string, but also append the year. So "The Big
+            # Bang Theory" will become "Big Bang Theory, The (2007)". We put
+            # it at the beginning in order to normalize it to make it more
+            # intuitive to lookup against.
+            match = re.search(r'(.+?), (The) (\(\d+\))', original_name)
+            if match:
+                normalized_name = '{} {} {}'.format(match.group(2), match.group(1), match.group(3))
             else:
                 normalized_name = original_name
 
@@ -114,16 +117,25 @@ class EztvIt(object):
         then call get_episodes_by_id directly to remove the overhead.
         """
         shows = self.get_shows()
-        if show_name not in shows.values():
+
+        match = filter(lambda candidate: candidate.startswith(show_name), shows.values())
+
+        # If there is more than one match
+        if len(match) > 1:
+           raise Exception("More than one partial match for " + show_name)
+
+        match = match[0]
+
+        if not match:
             raise KeyError("Show not found")
 
-        (show_id, ) = [k for k, v in shows.iteritems() if v == show_name]
+        (show_id, ) = [k for k, v in shows.iteritems() if v == match]
 
         return self.get_episodes_by_id(show_id)
 
     def get_episodes_by_id(self, show_id):
         """Get the episodes for a show based on its ID."""
-        parsed = bs4.BeautifulSoup(self._get_episodes_page_html(show_id))
+        parsed = bs4.BeautifulSoup(self._get_episodes_page_html(show_id), "lxml")
 
         # First, we need to locate the table that contains the "Television
         # Show Releases".
