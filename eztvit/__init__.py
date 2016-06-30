@@ -118,7 +118,7 @@ class EztvIt(object):
         """
         shows = self.get_shows()
 
-        match = filter(lambda candidate: candidate.startswith(show_name), shows.values())
+        match = filter(lambda candidate: candidate.lower().startswith(show_name.lower()), shows.values())
 
         # If there is more than one match
         if len(match) > 1:
