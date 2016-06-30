@@ -1,17 +1,35 @@
-[![Build Status](https://travis-ci.org/jaysh/eztvit-python.svg?branch=master)](https://travis-ci.org/jaysh/eztvit-python)
+Latest updated: **June 2016** | [![Build Status](https://travis-ci.org/jaysh/eztvit-python.svg?branch=master)](https://travis-ci.org/jaysh/eztvit-python)
 
-eztv.it Python Connector
+EZTV API
 =============
 
-A Simple API that allows anyone to retrieve the list of shows that EZTV has, and print information about episodes and seasons a particular season has to offer.
+Dead simple API that exposes season and episode information for shows on EZTV.
+
+Changelog (last 12 months)
+=============
+
+*June 2016*:
+- New domain (eztv.yt)
+- Adapt to new name of search box (thanks to [anthonygclark](https://github.com/anthonygclark))
+- Make show lookup a partial match due to addition of the show year to all shows (previously only some shows had the year) (thanks to [anthonygclark](https://github.com/anthonygclark))
+
+*October 2015*:
+- Use urllib3 instead of urllib2 for better connectivity over SSL (including CloudFlare'd websites that use SNI)
+
+*September 2015*:
+- Update text we look for in the table header
+
+*August 2015*:
+- New domain (eztv.ag)
+- Small scraping updates due to page structure changes
 
 # Installation from PyPi
 
     sudo pip install eztvit
 
-# Building the project
+# Building the project for release and uploading to PyPi
 
-    python setup.py sdist
+    python setup.py sdist upload
 
 # Usage 
 
