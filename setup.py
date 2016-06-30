@@ -34,7 +34,7 @@ setup(
     # http://packaging.python.org/en/latest/tutorial.html#version
     version=find_version('eztvit/__init__.py'),
 
-    description='Screenscraper for https://eztv.it/',
+    description='Python API for https://eztv.yt/ (previously https://eztv.it)',
     long_description=long_description,
 
     # The project's main homepage.

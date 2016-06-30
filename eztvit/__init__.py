@@ -6,7 +6,7 @@ Works by screen-scraping the homepage and show pages, but depending as little
 on the names of elements or structure of the DOM as possible.
 """
 
-__version__ = "3.2.1"
+__version__ = "3.2.3"
 
 import bs4
 import re
