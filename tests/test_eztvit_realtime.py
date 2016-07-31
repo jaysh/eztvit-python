@@ -9,7 +9,7 @@ class TestEztvItRealTime(unittest.TestCase):
         suits = eztvit.EztvIt().get_episodes('Suits')
 
         # Check the four seasons have the correct number of episodes.
-        self.assertEquals(len(suits[1]), 1)
+        self.assertEquals(len(suits[1]), 12 - 2) # Some are missing.
         self.assertEquals(len(suits[2]), 16)
         self.assertEquals(len(suits[3]), 16)
 

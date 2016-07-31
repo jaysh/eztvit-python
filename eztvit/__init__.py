@@ -6,7 +6,7 @@ Works by screen-scraping the homepage and show pages, but depending as little
 on the names of elements or structure of the DOM as possible.
 """
 
-__version__ = "3.2.3"
+__version__ = "3.3.0"
 
 import bs4
 import re
@@ -50,7 +50,7 @@ class EztvIt(object):
         """
         response = self.http.request(
             'GET',
-            SCHEME + '://' + EZTV_DOMAIN + '/shows/{show_id}/'.format(show_id=show_id)
+            SCHEME + '://' + EZTV_DOMAIN + '/search/?q1=&q2={show_id}&search=Search'.format(show_id=show_id)
         )
 
         return response.data
@@ -135,11 +135,12 @@ class EztvIt(object):
 
     def get_episodes_by_id(self, show_id):
         """Get the episodes for a show based on its ID."""
-        parsed = bs4.BeautifulSoup(self._get_episodes_page_html(show_id), "lxml")
+        html = self._get_episodes_page_html(show_id)
+        parsed = bs4.BeautifulSoup(html, "lxml")
 
         # First, we need to locate the table that contains the "Television
         # Show Releases".
-        tv_releases_title = parsed.find(text=lambda t: t.strip().endswith('Torrent Download'))
+        tv_releases_title = parsed.find(text=lambda t: t.strip().startswith('EZTV Series'))
         if not tv_releases_title:
             raise RuntimeError("Unable to locate the table that contains the "
                                "list of releases")
@@ -203,19 +204,21 @@ class EztvIt(object):
 
             # Find the anchor that looks like it has a title for the filesize.
             filesize_regex = re.compile(r'([\d\.]+) (MB|GB|B)')
-            filesize_anchor = row.find(title=filesize_regex)
+            filesize_element = row.find(text=filesize_regex)
+            if filesize_element:
+                # Get the size and the units
+                filesize_match = filesize_regex.search(filesize_element.strip())
+                assert filesize_match, "Extract the filesize from the title"
 
-            # Get the size and the units
-            filesize_match = filesize_regex.search(filesize_anchor.get('title'))
-            assert filesize_match, "Extract the filesize from the title"
-
-            # Parse the human MB/GB into a universal megabytes format.
-            factors = {'GB': 1024, 'MB': 1, 'B': 0}
-            filesize_units = filesize_match.group(2)
-            assert filesize_units in factors
-            # Convert it to a reasonably-readable megabyte-size.
-            filesize_mb = int(
-                float(filesize_match.group(1)) * factors[filesize_units])
+                # Parse the human MB/GB into a universal megabytes format.
+                factors = {'GB': 1024, 'MB': 1, 'B': 0}
+                filesize_units = filesize_match.group(2)
+                assert filesize_units in factors
+                # Convert it to a reasonably-readable megabyte-size.
+                filesize_mb = int(
+                    float(filesize_match.group(1)) * factors[filesize_units])
+            else:
+                filesize_mb = None
 
             season = None
             episode = None

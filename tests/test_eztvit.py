@@ -50,7 +50,7 @@ class TestEztvIt(unittest.TestCase):
             self.assertEquals(type(episodes), dict)
 
         # Check the four seasons have the correct number of episodes.
-        self.assertEquals(len(suits[1]), 1) # Most episodes are missing.
+        self.assertEquals(len(suits[1]), 12 - 2) # Some are missing.
         self.assertEquals(len(suits[2]), 16)
         self.assertEquals(len(suits[3]), 16)
         self.assertLessEqual(len(suits[4]), 16)
@@ -64,15 +64,17 @@ class TestEztvIt(unittest.TestCase):
                           "Suits S04E06 REPACK HDTV x264-KILLERS [eztv]")
         self.assertIn('magnet:?xt=urn:btih:D4JVVOTZ3YNAYO',
                       suits_4x06[0]['download']['magnet'])
+        self.assertEquals(suits_4x06[0]['size_mb'], 270)
 
         self.assertEquals(suits_4x06[1]['release'],
                           "Suits S04E06 HDTV x264-KILLERS [eztv]")
         self.assertIn('magnet:?xt=urn:btih:VNL5SUXHIMCODE',
                       suits_4x06[1]['download']['magnet'])
+        self.assertEquals(suits_4x06[1]['size_mb'], 265)
 
         # Check that we made an appropriate HTTP request to get this page.
         (method, url) = self._get_request_from_mock(mock_poolmanager)
-        self.assertEquals(url, 'https://eztv.yt/shows/495/')
+        self.assertEquals(url, 'https://eztv.yt/search/?q1=&q2=495&search=Search')
         self.assertEquals(method, 'GET')
 
         headers = self._get_headers_from_mock(mock_poolmanager)
@@ -98,7 +100,7 @@ class TestEztvIt(unittest.TestCase):
             self.assertEquals(type(episodes), dict)
 
         # Check the four seasons have the correct number of episodes (season 1 and 2 are missing).
-        self.assertEquals(len(fringe[3]), 15)
+        self.assertEquals(len(fringe[3]), 21)
         self.assertEquals(len(fringe[4]), 22)
         self.assertEquals(len(fringe[5]), 13)
 

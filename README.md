@@ -1,4 +1,4 @@
-Latest updated: **June 2016** | [![Build Status](https://travis-ci.org/jaysh/eztvit-python.svg?branch=master)](https://travis-ci.org/jaysh/eztvit-python)
+Latest version: 3.3.0 - **August 2016** | [![Build Status](https://travis-ci.org/jaysh/eztvit-python.svg?branch=master)](https://travis-ci.org/jaysh/eztvit-python)
 
 EZTV API
 =============
@@ -7,6 +7,9 @@ Dead simple API that exposes season and episode information for shows on EZTV.
 
 Changelog (last 12 months)
 =============
+*August 2016*:
+- EZTV has split the filesize into a dedicated column
+- Revert back to the search rather than show page due to bugs on show pages (some filesizes missing)
 
 *June 2016*:
 - New domain (eztv.yt)
