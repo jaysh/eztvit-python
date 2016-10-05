@@ -6,9 +6,10 @@ Works by screen-scraping the homepage and show pages, but depending as little
 on the names of elements or structure of the DOM as possible.
 """
 
-__version__ = "3.3.0"
+__version__ = "3.3.1"
 
 import bs4
+import json
 import re
 import collections
 import urlparse
@@ -25,7 +26,7 @@ HEADERS = {
                   'Ubuntu Chromium/30.0.1599.114 '
                   'Chrome/30.0.1599.114 Safari/537.36'
 }
-EZTV_DOMAIN = 'eztv.yt'
+EZTV_DOMAIN = 'eztv.ag'
 
 class EztvIt(object):
     """EZTV Client
@@ -55,9 +56,9 @@ class EztvIt(object):
 
         return response.data
 
-    def _get_homepage_html(self):
+    def _get_shows_dropdown_javascript(self):
         """Fetch the homepage."""
-        response = self.http.request('GET', SCHEME + '://' + EZTV_DOMAIN + '/')
+        response = self.http.request('GET', SCHEME + '://' + EZTV_DOMAIN + '/js/search_shows1.js')
 
         return response.data
 
@@ -75,21 +76,21 @@ class EztvIt(object):
         if self.shows_list is not None:
             return self.shows_list
 
-        parsed = bs4.BeautifulSoup(self._get_homepage_html(), "lxml")
+        javascript_source = self._get_shows_dropdown_javascript()
+        # Search for the first assignment of a list of things. We take that as the shows list.
+        shows_list_match = re.search(r'=\s*(\[.+?\])', javascript_source)
+        if not shows_list_match:
+            raise RuntimeError("Cannot find shows list in Javascript source")
 
-        shows_select = parsed.find('select', attrs={'name': 'q2'})
-        if not shows_select:
-            raise RuntimeError("Cannot find dropdown called q2"
-                               " with the shows in on the homepage.")
+        parsed_shows = json.loads(shows_list_match.group(1))
 
         # The shows that we have parsed.
         self.shows_list = {}
 
-        shows_options = shows_select.find_all('option')
-        for option in shows_options:
-            original_name = option.string
+        for parsed_show in parsed_shows:
+            original_name = parsed_show['text']
             try:
-                show_id = int(option['value'])
+                show_id = int(parsed_show['id'])
             except ValueError:
                 # Skip this show and move on to the next one.
                 continue
@@ -99,9 +100,11 @@ class EztvIt(object):
             # Bang Theory" will become "Big Bang Theory, The (2007)". We put
             # it at the beginning in order to normalize it to make it more
             # intuitive to lookup against.
-            match = re.search(r'(.+?), (The) (\(\d+\))', original_name)
+            match = re.search(r'(.+?), (The)\s*(\(\d+\))?', original_name)
             if match:
-                normalized_name = '{} {} {}'.format(match.group(2), match.group(1), match.group(3))
+                # Only keep the truthy name parts.
+                name_parts = filter(None, [match.group(2), match.group(1), match.group(3)])
+                normalized_name = ' '.join(name_parts)
             else:
                 normalized_name = original_name
 
@@ -135,12 +138,11 @@ class EztvIt(object):
 
     def get_episodes_by_id(self, show_id):
         """Get the episodes for a show based on its ID."""
-        html = self._get_episodes_page_html(show_id)
-        parsed = bs4.BeautifulSoup(html, "lxml")
+        parsed = bs4.BeautifulSoup(self._get_episodes_page_html(show_id), "lxml")
 
         # First, we need to locate the table that contains the "Television
         # Show Releases".
-        tv_releases_title = parsed.find(text=lambda t: t.strip().startswith('EZTV Series'))
+        tv_releases_title = parsed.find(text=lambda t: 'EZTV Series: Latest Torrents' in t)
         if not tv_releases_title:
             raise RuntimeError("Unable to locate the table that contains the "
                                "list of releases")
@@ -204,10 +206,12 @@ class EztvIt(object):
 
             # Find the anchor that looks like it has a title for the filesize.
             filesize_regex = re.compile(r'([\d\.]+) (MB|GB|B)')
-            filesize_element = row.find(text=filesize_regex)
-            if filesize_element:
+            filesize_anchor = row.find(title=filesize_regex)
+            filesize_mb = None
+
+            if filesize_anchor:
                 # Get the size and the units
-                filesize_match = filesize_regex.search(filesize_element.strip())
+                filesize_match = filesize_regex.search(filesize_anchor.get('title'))
                 assert filesize_match, "Extract the filesize from the title"
 
                 # Parse the human MB/GB into a universal megabytes format.
@@ -217,8 +221,6 @@ class EztvIt(object):
                 # Convert it to a reasonably-readable megabyte-size.
                 filesize_mb = int(
                     float(filesize_match.group(1)) * factors[filesize_units])
-            else:
-                filesize_mb = None
 
             season = None
             episode = None

@@ -9,9 +9,9 @@ class TestEztvItRealTime(unittest.TestCase):
         suits = eztvit.EztvIt().get_episodes('Suits')
 
         # Check the four seasons have the correct number of episodes.
-        self.assertEquals(len(suits[1]), 12 - 2) # Some are missing.
         self.assertEquals(len(suits[2]), 16)
         self.assertEquals(len(suits[3]), 16)
+        self.assertLessEqual(len(suits[4]), 16)
 
         # Test that "S04E06" has 2 episodes, in a particular order, with the
         # correct magnet links.

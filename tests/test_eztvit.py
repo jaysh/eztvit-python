@@ -13,7 +13,7 @@ class TestEztvIt(unittest.TestCase):
 
     @mock.patch('urllib3.PoolManager')
     def test_suits_via_show_name(self, mock_poolmanager):
-        with open('tests/fixtures/homepage.html') as fixture:
+        with open('tests/fixtures/search_shows1.js') as fixture:
             mock_poolmanager().request.return_value = urllib3.response.HTTPResponse(fixture.read())
 
         eztv_client = eztvit.EztvIt()
@@ -24,7 +24,7 @@ class TestEztvIt(unittest.TestCase):
 
         # Check that we requested the homepage.
         (method, url) = self._get_request_from_mock(mock_poolmanager)
-        self.assertEquals(url, 'https://eztv.yt/')
+        self.assertEquals(url, 'https://eztv.ag/js/search_shows1.js')
         self.assertEquals(method, 'GET')
 
         headers = self._get_headers_from_mock(mock_poolmanager)
@@ -50,7 +50,6 @@ class TestEztvIt(unittest.TestCase):
             self.assertEquals(type(episodes), dict)
 
         # Check the four seasons have the correct number of episodes.
-        self.assertEquals(len(suits[1]), 12 - 2) # Some are missing.
         self.assertEquals(len(suits[2]), 16)
         self.assertEquals(len(suits[3]), 16)
         self.assertLessEqual(len(suits[4]), 16)
@@ -64,17 +63,15 @@ class TestEztvIt(unittest.TestCase):
                           "Suits S04E06 REPACK HDTV x264-KILLERS [eztv]")
         self.assertIn('magnet:?xt=urn:btih:D4JVVOTZ3YNAYO',
                       suits_4x06[0]['download']['magnet'])
-        self.assertEquals(suits_4x06[0]['size_mb'], 270)
 
         self.assertEquals(suits_4x06[1]['release'],
                           "Suits S04E06 HDTV x264-KILLERS [eztv]")
         self.assertIn('magnet:?xt=urn:btih:VNL5SUXHIMCODE',
                       suits_4x06[1]['download']['magnet'])
-        self.assertEquals(suits_4x06[1]['size_mb'], 265)
 
         # Check that we made an appropriate HTTP request to get this page.
         (method, url) = self._get_request_from_mock(mock_poolmanager)
-        self.assertEquals(url, 'https://eztv.yt/search/?q1=&q2=495&search=Search')
+        self.assertEquals(url, 'https://eztv.ag/search/?q1=&q2=495&search=Search')
         self.assertEquals(method, 'GET')
 
         headers = self._get_headers_from_mock(mock_poolmanager)
@@ -107,13 +104,15 @@ class TestEztvIt(unittest.TestCase):
     @mock.patch('urllib3.PoolManager')
     def test_shows_list(self, mock_poolmanager):
         # Mock urllib2 to return the homepage.
-        with open('tests/fixtures/homepage.html') as fixture:
+        with open('tests/fixtures/search_shows1.js') as fixture:
             mock_poolmanager().request.return_value = urllib3.response.HTTPResponse(fixture.read())
 
         # Fetch the dictionary that represents all of available shows.
         shows = eztvit.EztvIt().get_shows()
 
-        self.assertEquals(shows[495], 'Suits (2011)')
-        self.assertEquals(shows[101], 'Fringe (2008)')
+        self.assertEquals(shows[495], 'Suits')
+        self.assertEquals(shows[101], 'Fringe')
+        self.assertEquals(shows[42], 'Castle (2009)')
+        self.assertEquals(shows[442], 'The Cape (2011)')
         # Check the "The" has come back to the beginning.
-        self.assertEquals(shows[23], 'The Big Bang Theory (2007)')
+        self.assertEquals(shows[23], 'The Big Bang Theory')
