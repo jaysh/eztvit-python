@@ -121,13 +121,17 @@ class EztvIt(object):
         """
         shows = self.get_shows()
 
-        match = filter(lambda candidate: candidate.lower().startswith(show_name.lower()), shows.values())
+        if show_name in shows.values():
+            match = show_name
+        else:
+            # Find the best match that we can using the input as a prefix.
+            match = filter(lambda candidate: candidate.lower().startswith(show_name.lower()), shows.values())
 
-        # If there is more than one match
-        if len(match) > 1:
-           raise Exception("More than one partial match for " + show_name)
+            # If there is more than one match
+            if len(match) > 1:
+               raise Exception("More than one partial match for " + show_name)
 
-        match = match[0]
+            match = match[0]
 
         if not match:
             raise KeyError("Show not found")

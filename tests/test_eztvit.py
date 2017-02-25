@@ -103,7 +103,6 @@ class TestEztvIt(unittest.TestCase):
 
     @mock.patch('urllib3.PoolManager')
     def test_shows_list(self, mock_poolmanager):
-        # Mock urllib2 to return the homepage.
         with open('tests/fixtures/search_shows1.js') as fixture:
             mock_poolmanager().request.return_value = urllib3.response.HTTPResponse(fixture.read())
 
@@ -116,3 +115,26 @@ class TestEztvIt(unittest.TestCase):
         self.assertEquals(shows[442], 'The Cape (2011)')
         # Check the "The" has come back to the beginning.
         self.assertEquals(shows[23], 'The Big Bang Theory')
+
+    @mock.patch('urllib3.PoolManager')
+    @mock.patch('eztvit.EztvIt.get_episodes_by_id')
+    def test_get_episodes_matches_exact_correctly(self, mock_getepisodesbyid, mock_poolmanager):
+        with open('tests/fixtures/search_shows1.js') as fixture:
+            mock_poolmanager().request.return_value = urllib3.response.HTTPResponse(fixture.read())
+
+
+        # Possible candidates: "The Blacklist" and "The Blacklist: Redemption"
+        eztvit.EztvIt().get_episodes('The Blacklist')
+
+        mock_getepisodesbyid.assert_called_with(887)
+
+    @mock.patch('urllib3.PoolManager')
+    @mock.patch('eztvit.EztvIt.get_episodes_by_id')
+    def test_get_episodes_matches_partial_correctly(self, mock_getepisodesbyid, mock_poolmanager):
+        with open('tests/fixtures/search_shows1.js') as fixture:
+            mock_poolmanager().request.return_value = urllib3.response.HTTPResponse(fixture.read())
+
+        # Possible candidates: "Castle (2009)"
+        eztvit.EztvIt().get_episodes('Castle')
+
+        mock_getepisodesbyid.assert_called_with(42)
