@@ -1,12 +1,15 @@
-Latest version: 3.3.1 - **October 2016** | [![Build Status](https://travis-ci.org/jaysh/eztvit-python.svg?branch=master)](https://travis-ci.org/jaysh/eztvit-python)
+Latest version: 3.3.2 - **February 2017** | [![Build Status](https://travis-ci.org/jaysh/eztvit-python.svg?branch=master)](https://travis-ci.org/jaysh/eztvit-python)
 
 EZTV API
 =============
 
-Dead simple API that exposes season and episode information for shows on EZTV.
+Simple wrapper for EZTV that enables you to search for shows, and pull up show information in a structured and reliable format.
 
 Changelog (last 24 months)
 =============
+
+*February 2017*:
+- When pulling up shows by name, look for an exact match before performing a prefix search to find a best match.
 
 *October 2016*:
 - New domain (eztv.ag)
